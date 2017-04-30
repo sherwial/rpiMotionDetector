@@ -13,6 +13,8 @@ def hello_world():
 @app.route('/take')
 def take_pic():
     cap = cv.VideoCapture(0)
+    cap.set(3,1280)
+    cap.set(4,1024)
     ret,frame = cap.read()
     cv.imwrite('image.png',frame)
     cap.release()
