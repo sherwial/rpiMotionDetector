@@ -6,13 +6,17 @@ import threading
 import time
 import Queue
 
+kernel = np.ones((11, 11), np.uint8)
+kerneld = np.ones((19, 19), np.uint8)
+
+
 class FrameProcessor(threading.Thread):
     def __init__(self,queue,data_array):
         threading.Thread.__init__(self)
-        self.status = True;
-        self.queue = queue;
+        self.status = True
+        self.queue = queue
         self.data = data_array
-        self.frame_const = 0;
+        self.frame_const = 0
 
     def run(self):
         print "Starting Frame Processor"
@@ -31,7 +35,8 @@ class FrameProcessor(threading.Thread):
         opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
         opening = cv2.morphologyEx(opening, cv2.MORPH_DILATE, kerneld)
         cv2.imshow('Opening',opening)
-        image,cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        #image,cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         for thing in map(self.area, cnts):
             if thing > 4000:
                 data_array.append(datetime.datetime.now())
@@ -43,9 +48,8 @@ class FrameProcessor(threading.Thread):
 
 
 cap = cv2.VideoCapture(0)
-kernel = np.ones((11,11),np.uint8)
-kerneld = np.ones((19,19),np.uint8)
-count = 0 
+count = 0
+framesPerProcess = 10  # Process rate
 data_array = []
 q = Queue.Queue()
 
@@ -53,8 +57,8 @@ frame_processor = FrameProcessor(q,data_array)
 frame_processor.start()
 while(True):
     ret, frame = cap.read()
-    if count > 20:
-        count = 0;
+    if count > framesPerProcess:
+        count = 0
         q.put(frame)
     count += 1
     cv2.imshow('original', frame)
