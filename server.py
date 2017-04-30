@@ -3,8 +3,7 @@ import cv2 as cv
  
 from flask import Flask
 from flask import send_file
-cap = cv.VideoCapture(0)
-cap.set()
+#cap.set()
 app = Flask(__name__)
 
 @app.route('/')
