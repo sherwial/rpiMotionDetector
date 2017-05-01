@@ -5,14 +5,32 @@ import cPickle as pkl
 import threading
 import time
 import Queue
+import uuid
+import os, shutil
 
 kernel = np.ones((11, 11), np.uint8)
 kerneld = np.ones((19, 19), np.uint8)
+observances = []
+
+
+def ensure_dir():
+    try:
+        os.mkdir('images')
+    except:
+        shutil.rmtree('images')
+        os.mkdir('images')
 
 
 class FrameProcessor(threading.Thread):
     def __init__(self,queue,data_array):
+        ensure_dir()
         threading.Thread.__init__(self)
+        self.took_pic = 0
+        self.saw_something = 0
+        self.observance_time = 0
+        self.movement_foundation = time.time()
+        self.time_to_reset = 10
+        self.time_to_print = 2
         self.status = True
         self.queue = queue
         self.data = data_array
@@ -25,8 +43,7 @@ class FrameProcessor(threading.Thread):
                 threading._sleep(.01)
             else:
                 self.process_frame(self.queue.get())
-                
-                        
+
     def process_frame(self,frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         self.frame_const = cv2.addWeighted(self.frame_const, .8, gray, .2, 0)
@@ -37,15 +54,27 @@ class FrameProcessor(threading.Thread):
         cv2.imshow('Opening',opening)
         #image,cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        if (time.time() - self.movement_foundation) > self.time_to_reset:
+            self.observance_time = 0
+            self.saw_something = 0
+            self.took_pic = 0
         for thing in map(self.area, cnts):
+            self.movement_foundation = time.time()
             if thing > 4000:
-                data_array.append(datetime.datetime.now())
-                print datetime.datetime.now()
+                if self.saw_something == 0:
+                    self.saw_something = 1 # We saw something
+                    self.observance_time = time.time()
+                else:
+                    if ((time.time() - self.observance_time) > self.time_to_print) and (self.took_pic == 0):
+                        id = uuid.uuid1().get_hex()
+                        observances.append(id)
+                        cv2.imwrite(str(id)+'.png',frame)
+                        self.took_pic = 1
+
+                break
 
     def area(self, contour):
         return cv2.contourArea(contour)
-
-
 
 cap = cv2.VideoCapture(0)
 count = 0
