@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import socket
 from flask import Flask
-from flask import send_file
+from flask import send_file,render_template
 import threading
 
 # ip = socket.gethostbyname(socket.gethostname())

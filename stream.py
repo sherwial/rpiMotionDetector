@@ -54,8 +54,8 @@ class FrameProcessor(threading.Thread):
         ret, thresh = cv2.threshold(diff, 20,255,cv2.THRESH_BINARY)
         opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
         opening = cv2.morphologyEx(opening, cv2.MORPH_DILATE, kerneld)
-        #image,cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        image,cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        #cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         if (time.time() - self.movement_foundation) > self.time_to_reset:
             self.observance_time = 0
             self.saw_something = 0
@@ -70,7 +70,7 @@ class FrameProcessor(threading.Thread):
                     if ((time.time() - self.observance_time) > self.time_to_print) and (self.took_pic == 0):
                         id = uuid.uuid1().get_hex()
                         cv2.imwrite(str(id)+'.png',frame)
-                        observances.append(id)
+                        observances.append({"uuid":id, "time":time.time()})
                         self.took_pic = 1
 
                 break
