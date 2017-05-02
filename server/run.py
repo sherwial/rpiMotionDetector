@@ -1,11 +1,10 @@
-from image import take_image
-import cv2 as cv
- 
+#!/usr/bin/python
+import socket
 from flask import Flask
 from flask import send_file
 import threading
-#cap.set()
 
+# ip = socket.gethostbyname(socket.gethostname())
 
 class Server(threading.Thread):
     def __init__(self, obs):
@@ -14,14 +13,8 @@ class Server(threading.Thread):
         self.app = Flask(__name__)
 
         @self.app.route('/')
-        def hello_world():
-            string = "Observances:"
-            for o in self.observs:
-                string+="\n"
-                string = string + '\n'
-                string+=o
-
-            return string
+        def observations():
+            return render_template('observations.html', observs=self.observs)
 
         # @self.app.route('/take')
         # def take_pic():
