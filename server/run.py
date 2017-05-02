@@ -16,6 +16,9 @@ class Server(threading.Thread):
         def observations():
             return render_template('observations.html', observs=self.observs)
 
+        @self.app.route('/static/<filename>')
+        def file(filename):
+            return send_file('../'+filename+'.png')
         # @self.app.route('/take')
         # def take_pic():
         #     cap = cv.VideoCapture(0)
