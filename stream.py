@@ -7,10 +7,13 @@ import time
 import Queue
 import uuid
 import os, shutil
+from server import Server
 
 kernel = np.ones((11, 11), np.uint8)
 kerneld = np.ones((19, 19), np.uint8)
 observances = []
+s = Server(observances)
+s.start()
 
 
 def ensure_dir():
@@ -51,7 +54,6 @@ class FrameProcessor(threading.Thread):
         ret, thresh = cv2.threshold(diff, 20,255,cv2.THRESH_BINARY)
         opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
         opening = cv2.morphologyEx(opening, cv2.MORPH_DILATE, kerneld)
-        cv2.imshow('Opening',opening)
         #image,cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         if (time.time() - self.movement_foundation) > self.time_to_reset:
@@ -67,8 +69,8 @@ class FrameProcessor(threading.Thread):
                 else:
                     if ((time.time() - self.observance_time) > self.time_to_print) and (self.took_pic == 0):
                         id = uuid.uuid1().get_hex()
-                        observances.append(id)
                         cv2.imwrite(str(id)+'.png',frame)
+                        observances.append(id)
                         self.took_pic = 1
 
                 break
@@ -84,13 +86,14 @@ q = Queue.Queue()
 
 frame_processor = FrameProcessor(q,data_array)
 frame_processor.start()
+
+
 while(True):
     ret, frame = cap.read()
     if count > framesPerProcess:
         count = 0
         q.put(frame)
     count += 1
-    cv2.imshow('original', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         frame_processor.status = False
         break
