@@ -18,7 +18,10 @@ class Server(threading.Thread):
 
         @self.app.route('/static/<filename>')
         def file(filename):
-            return send_file('../'+filename+'.png')
+            try:
+                return send_file('../'+filename+'.png')
+            except:
+                return "Image outdated"
         # @self.app.route('/take')
         # def take_pic():
         #     cap = cv.VideoCapture(0)

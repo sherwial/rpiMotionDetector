@@ -33,7 +33,7 @@ class FrameProcessor(threading.Thread):
         self.observance_time = 0
         self.movement_foundation = time.time()
         self.time_to_reset = 10
-        self.time_to_print = 2
+        self.time_to_print = 3
         self.status = True
         self.queue = queue
         self.data = data_array
@@ -43,7 +43,7 @@ class FrameProcessor(threading.Thread):
         print "Starting Frame Processor"
         while(self.status == True):
             if self.queue.qsize() != 0:
-                threading._sleep(.01)
+                threading._sleep(.05)
             else:
                 self.process_frame(self.queue.get())
 
@@ -61,8 +61,9 @@ class FrameProcessor(threading.Thread):
             self.saw_something = 0
             self.took_pic = 0
         for thing in map(self.area, cnts):
-            self.movement_foundation = time.time()
-            if thing > 4000:
+            if thing > 2000:
+                print "Movement"
+                self.movement_foundation = time.time()
                 if self.saw_something == 0:
                     self.saw_something = 1 # We saw something
                     self.observance_time = time.time()
@@ -70,7 +71,7 @@ class FrameProcessor(threading.Thread):
                     if ((time.time() - self.observance_time) > self.time_to_print) and (self.took_pic == 0):
                         id = uuid.uuid1().get_hex()
                         cv2.imwrite(str(id)+'.png',frame)
-                        observances.append({"uuid":id, "time":time.time()})
+                        observances.append({"uuid":id, "time":time.time(), "date": time.strftime("%c")})
                         self.took_pic = 1
 
                 break
@@ -79,8 +80,11 @@ class FrameProcessor(threading.Thread):
         return cv2.contourArea(contour)
 
 cap = cv2.VideoCapture(0)
+cap.set(3,1280)
+cap.set(4,720)
 count = 0
-framesPerProcess = 10  # Process rate
+framesPerProcess = 0  # Process rate
+sleep_time = 1
 data_array = []
 q = Queue.Queue()
 
@@ -89,7 +93,9 @@ frame_processor.start()
 
 
 while(True):
-    ret, frame = cap.read()
+    threading._sleep(sleep_time)
+    for i in range(0,5):
+        ret, frame = cap.read()
     if count > framesPerProcess:
         count = 0
         q.put(frame)
