@@ -32,8 +32,8 @@ class FrameProcessor(threading.Thread):
         self.saw_something = 0
         self.observance_time = 0
         self.movement_foundation = time.time()
-        self.time_to_reset = 10
-        self.time_to_print = 3
+        self.time_to_reset = 5
+        self.time_to_print = 3 
         self.status = True
         self.queue = queue
         self.data = data_array

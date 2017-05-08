@@ -33,4 +33,4 @@ class Server(threading.Thread):
         #     return "took image"
 
     def run(self):
-        self.app.run(host='0.0.0.0')
+        self.app.run(host='0.0.0.0', threaded=True)
