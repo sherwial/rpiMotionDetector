@@ -28,12 +28,11 @@ class FrameProcessor(threading.Thread):
     def __init__(self,queue,data_array):
         ensure_dir()
         threading.Thread.__init__(self)
-        self.took_pic = 0
         self.saw_something = 0
         self.observance_time = 0
         self.movement_foundation = time.time()
-        self.time_to_reset = 5
-        self.time_to_print = 3 
+        self.seconds_between_image = 5
+        self.last_image_time = time.time()
         self.status = True
         self.queue = queue
         self.data = data_array
@@ -56,24 +55,14 @@ class FrameProcessor(threading.Thread):
         opening = cv2.morphologyEx(opening, cv2.MORPH_DILATE, kerneld)
         image,cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         #cnts,hier = cv2.findContours(opening.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        if (time.time() - self.movement_foundation) > self.time_to_reset:
-            self.observance_time = 0
-            self.saw_something = 0
-            self.took_pic = 0
         for thing in map(self.area, cnts):
             if thing > 2000:
                 print "Movement"
-                self.movement_foundation = time.time()
-                if self.saw_something == 0:
-                    self.saw_something = 1 # We saw something
-                    self.observance_time = time.time()
-                else:
-                    if ((time.time() - self.observance_time) > self.time_to_print) and (self.took_pic == 0):
-                        id = uuid.uuid1().get_hex()
-                        cv2.imwrite(str(id)+'.png',frame)
-                        observances.append({"uuid":id, "time":time.time(), "date": time.strftime("%c")})
-                        self.took_pic = 1
-
+                if time.time()-self.last_image_time > self.seconds_between_image:
+                    self.last_image_time = time.time()
+                    id = uuid.uuid1().get_hex()
+                    cv2.imwrite(str(id)+'.png',frame)
+                    observances.append({"uuid":id, "time":time.time(), "date": time.strftime("%c")})
                 break
 
     def area(self, contour):
