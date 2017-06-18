@@ -19,7 +19,7 @@ class Server(threading.Thread):
         @self.app.route('/static/<filename>')
         def file(filename):
             try:
-                return send_file('../'+filename+'.png')
+                return send_file('../'+filename+'.jpeg')
             except:
                 return "Image outdated"
         # @self.app.route('/take')
