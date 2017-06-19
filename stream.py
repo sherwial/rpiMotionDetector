@@ -25,7 +25,7 @@ framesPerProcess = 0  # Process rate
 sleep_time = 1
 data_array = []
 
-frame_processor = FrameProcessor(data_array)
+frame_processor = FrameProcessor(data_array, observances)
 
 while(True):
     threading._sleep(sleep_time)
