@@ -32,12 +32,12 @@ class Server(threading.Thread):
                             mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-        def gen(self, camera):
+    def gen(self, camera):
             while True:
                 frame = camera.getImage()
                 ret, jpeg = cv2.imencode('.jpg', frame)
                 bytes = jpeg.tobytes()
-                yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+                yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + bytes + b'\r\n\r\n')
 
         # @self.app.route('/take')
         # def take_pic():
