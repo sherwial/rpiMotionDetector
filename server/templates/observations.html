@@ -1,7 +1,0 @@
-{% block content %}
-    <h1>Observations</h1>
-    {% for obs in observs %}
-    <div><a href="{{url_for('static',filename=obs.uuid)}}">{{ obs.uuid }}</a></div>
-    <div><p>{{ obs.date }}</p></div>
-    {% endfor %}
-{% endblock %}
