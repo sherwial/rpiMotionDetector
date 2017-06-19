@@ -7,7 +7,7 @@ import threading
 # ip = socket.gethostbyname(socket.gethostname())
 
 class Server(threading.Thread):
-    def __init__(self, obs):
+    def __init__(self, obs, picamobj):
         self.observs = obs
         threading.Thread.__init__(self)
         self.app = Flask(__name__)

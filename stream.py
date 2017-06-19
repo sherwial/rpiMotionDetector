@@ -13,21 +13,17 @@ from server import Server
 
 
 observances = [] # server
-s = Server(observances) # server
 pcam = PiCamWrapper()
-pcam.setResolution(1664, 1232)
+s = Server(observances, pcam)  # server
 
 s.start()
-
-
-
+pcam.setResolution(1664, 1232)
 time.sleep(.1)
 
 count = 0
 framesPerProcess = 0  # Process rate
 sleep_time = 1
 data_array = []
-q = Queue.Queue()
 
 frame_processor = FrameProcessor(data_array)
 
