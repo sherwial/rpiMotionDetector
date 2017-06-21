@@ -4,8 +4,10 @@ import uuid
 import numpy as np
 import time
 
-class FrameProcessor():
-    def __init__(self,data_array,observances):
+class FrameProcessor(threading.Thread):
+    def __init__(self,data_array,observances,q):
+        threading.Thread.__init__(self)
+        self.frameQueue = q
         self.observances = observances
         self.areaFilterLower = 16000  # FrameProcessor
         self.areaFilterUpper = 1600000  # FrameProcessor
@@ -20,6 +22,13 @@ class FrameProcessor():
         self.data = data_array
         self.frame_const = 0
 
+    def run(self):
+        time_to_wait = .1
+        while(True):
+           if self.frameQueue.qsize() == 0:
+               threading._sleep(time_to_wait)
+           else:
+               self.process_frame(self.frameQueue.get())
     def process_frame(self,frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         self.frame_const = cv2.addWeighted(self.frame_const, .8, gray, .2, 0)

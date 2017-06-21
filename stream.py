@@ -24,15 +24,15 @@ count = 0
 framesPerProcess = 0  # Process rate
 sleep_time = 1
 data_array = []
-
-frame_processor = FrameProcessor(data_array, observances)
-
+frameQueue = Queue.Queue()
+frame_processor = FrameProcessor(data_array, observances, frameQueue)
+frame_processor.start()
 while(True):
     threading._sleep(sleep_time)
     pcam.captureImage()
     if count > framesPerProcess:
         count = 0
-        frame_processor.process_frame(pcam.getImage())
+        frameQueue.put(pcam.getImage())
     count += 1
     # if cv2.waitKey(1) & 0xFF == ord('q'):
     #     frame_processor.status = False
