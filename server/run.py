@@ -4,6 +4,7 @@ from flask import Flask
 from flask import send_file,render_template
 from flask import Response
 import threading
+import waitress
 import cv2
 
 # ip = socket.gethostbyname(socket.gethostname())
@@ -50,4 +51,5 @@ class Server(threading.Thread):
         #     return "took image"
 
     def run(self):
-        self.app.run(host='0.0.0.0', threaded=True)
+        waitress.serve(self.app, host='0.0.0.0', port=5000)
+        # self.app.run(host='0.0.0.0', threaded=True)
